@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
-require "grpc"
-require "grpc/health/checker"
-require "grpc/health/v1/health_services_pb"
+# require "grpc"
+# require "grpc/health/checker"
+# require "grpc/health/v1/health_services_pb"
+
+require 'grpc_kit_server'
+require "grpc_kit_server/health/checker"
 
 require "anycable/grpc/handler"
 
@@ -11,7 +14,7 @@ module AnyCable
     using(Module.new do
       refine ::GRPC::RpcServer do
         attr_reader :pool_size
-      end
+      end if defined?(::GRPC::RpcServer)
     end)
 
     # Wrapper over gRPC server.
@@ -67,11 +70,11 @@ module AnyCable
       end
 
       def running?
-        grpc_server.running_state == :running
+        grpc_server.running?
       end
 
       def stopped?
-        grpc_server.running_state == :stopped
+        grpc_server.stopped?
       end
 
       private
@@ -83,7 +86,8 @@ module AnyCable
       end
 
       def build_server(**options)
-        ::GRPC::RpcServer.new(**options).tap do |server|
+        # ::GRPC::RpcServer.new(**options).tap do |server|
+        GrpcKitServer::RpcServer.new(**options).tap do |server|
           server.add_http2_port(host, :this_port_is_insecure)
           server.handle(AnyCable::GRPC::Handler)
           server.handle(build_health_checker)

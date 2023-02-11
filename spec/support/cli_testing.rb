@@ -89,11 +89,14 @@ module CLITesting
       command,
       chdir: chdir || File.join(PROJECT_ROOT, "bin")
     ) do |stdout, stderr, pid|
-      yield CLIControl.new(stdout, stderr, pid)
+      control = CLIControl.new(stdout, stderr, pid)
+      yield control
     rescue Exception => e # rubocop:disable Lint/RescueException
       rspex = e
     ensure
-      Process.kill("SIGKILL", pid)
+      until control.has_stopped?
+        Process.kill("SIGKILL", pid)
+      end
     end
   rescue PTY::ChildExited, Errno::ESRCH
     # no-op

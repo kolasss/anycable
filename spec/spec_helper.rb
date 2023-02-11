@@ -30,6 +30,7 @@ AnyCable.logger = TestLogger.new
 if ENV["LOG"]
   AnyCable.logger = Logger.new($stdout)
   ::GRPC.define_singleton_method(:logger) { AnyCable.logger } if defined?(::GRPC)
+  GrpcKit.logger = AnyCable.logger if defined?(GrpcKit)
 end
 
 module TestExHandler
@@ -70,9 +71,9 @@ RSpec.configure do |config|
   config.define_derived_metadata(file_path: %r{/grpc/}) do |metadata|
     metadata[:grpc] = true
   end
-  config.filter_run_excluding(grpc: true) if NO_GRPC
-  # Igonore specs manually checking for argument types when running RBS runtime tester
-  config.filter_run_excluding(rbs: false) if defined?(::RBS::Test)
+  # config.filter_run_excluding(grpc: true) if NO_GRPC
+  # # Igonore specs manually checking for argument types when running RBS runtime tester
+  # config.filter_run_excluding(rbs: false) if defined?(::RBS::Test)
 
   config.before do
     Anyway.env.clear if defined?(Anyway::Config)
@@ -82,4 +83,14 @@ RSpec.configure do |config|
     AnyCable.logger.reset if AnyCable.logger.respond_to?(:reset)
     TestExHandler.flush!
   end
+
+  # config.example_status_persistence_file_path = 'spec/examples.txt'
+
+  config.color = true
+
+  # Use color not only in STDOUT but also in pagers and files
+  config.tty = true
+
+  # Use the specified formatter
+  config.formatter = :documentation 
 end

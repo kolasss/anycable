@@ -3,8 +3,9 @@
 require "spec_helper"
 
 describe "CLI embedded", :cli do
-  include_context "anycable:grpc:stub"
+  include_context "rpc_command"
 
+  let(:service) { AnyCable::GRPC::Stub.new(AnyCable.config.rpc_host, :this_channel_is_insecure) }
   let(:request) { AnyCable::ConnectionRequest.new(env: env) }
 
   subject { service.connect(request) }

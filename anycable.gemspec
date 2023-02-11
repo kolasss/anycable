@@ -28,5 +28,6 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.6.0"
 
   spec.add_dependency "anycable-core", AnyCable::VERSION
-  spec.add_dependency "grpc", "~> 1.37"
+  # spec.add_dependency "grpc", "~> 1.37"
+  spec.add_dependency 'grpc_kit_server'
 end
